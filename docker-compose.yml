@@ -1,0 +1,80 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file: .env
+    volumes:
+      - ./data:/srv/data
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  # ---- Optional: local Ollama for a fully offline / zero-API-key fallback
+  # (or primary) model. Uncomment this and set PRIMARY_PROVIDER/
+  # FALLBACK_PROVIDER=ollama and OLLAMA_BASE_URL=http://ollama:11434 in .env.
+  # After first `docker compose up`, pull a model once with:
+  #   docker compose exec ollama ollama pull llama3.1
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   # Uncomment the next two lines if you have an NVIDIA GPU + nvidia-docker
+  #   # deploy:
+  #   #   resources:
+  #   #     reservations:
+  #   #       devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+
+  # ---- Optional: self-hosted Langfuse for LLM tracing (fully free) ----
+  # Uncomment to run locally. Needs its own Postgres, kept minimal here.
+  # langfuse:
+  #   image: langfuse/langfuse:latest
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/postgres
+  #     - NEXTAUTH_SECRET=changeme
+  #     - NEXTAUTH_URL=http://localhost:3001
+  #     - SALT=changeme
+  #   depends_on:
+  #     - langfuse-db
+  #
+  # langfuse-db:
+  #   image: postgres:15
+  #   environment:
+  #     - POSTGRES_PASSWORD=postgres
+  #   volumes:
+  #     - langfuse-db-data:/var/lib/postgresql/data
+
+volumes:
+  grafana-data:
+  # ollama-data:
+  # langfuse-db-data:

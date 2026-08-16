@@ -1,0 +1,40 @@
+{
+  "title": "AI Support Agent",
+  "timezone": "browser",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Requests / sec by intent",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(support_agent_requests_total[1m])) by (intent)" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "P95 latency (s)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(support_agent_request_latency_seconds_bucket[5m])) by (le, intent))" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Model fallback rate",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "rate(support_agent_model_fallback_total[5m])" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Tool calls by tool/status",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "expr": "sum(rate(support_agent_tool_calls_total[5m])) by (tool_name, status)" }
+      ]
+    }
+  ],
+  "schemaVersion": 39,
+  "version": 1
+}
