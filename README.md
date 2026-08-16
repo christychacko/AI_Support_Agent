@@ -75,11 +75,10 @@ ai-support-agent/
 
 ---
 
-## 3. Run it locally (10 minutes)
+## 3. Run it locally
 
 ```bash
 cd ai-support-agent
-cp .env.example .env
 # edit .env and paste your free Groq key: GROQ_API_KEY=gsk_...
 
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -209,9 +208,3 @@ gcloud run deploy support-agent \
 
 ---
 
-## 7. What to learn/tweak first as a beginner
-
-1. Run it locally, read `app/graph/build_graph.py` — it's the whole brain in ~40 lines.
-2. Add your own docs to `app/data/knowledge_base/` and re-run `ingest_kb.py`.
-3. Open Langfuse (or Grafana) and watch a real request trace through the graph.
-4. Swap the mock SQLite "orders" table for your real DB — only `mcp_server/server.py` changes.
